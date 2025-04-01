@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-proabonoTrigger",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Development", "Finance & Accounting"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.proabono.com/api/#authentication"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://docs.proabono.com"
+			}
+		]
+	}
+}
