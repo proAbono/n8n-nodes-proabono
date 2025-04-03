@@ -9,6 +9,7 @@ import type {
 	JsonObject,
 	INodeExecutionData,
 } from 'n8n-workflow';
+
 import { NodeApiError } from 'n8n-workflow';
 
 import { apiSend, apiFetch } from './ProAbonoTools';
@@ -312,24 +313,22 @@ export class ProAbonoTrigger implements INodeType {
 
 	webhookMethods = {
 		default: {
-			// Webhook - checkExists
 			async checkExists(this: IHookFunctions): Promise<boolean> {
 				const webhookData = this.getWorkflowStaticData('node');
 
 				if (webhookData.webhookId === undefined) {
 					// No webhook id is set so no webhook can exist
-					// throw new Error('No webhook id');
 					return false;
 				}
 
 				// Webhook got created before so check if it still exists
 				const endpoint = `/Notification/Webhooks/${webhookData.webhookId}`;
-				throw new Error(`endpoint: ${endpoint}`);
 
 				try {
 					await apiFetch.call(this, endpoint);
-				} catch (error) {
-					if (error.httpCode === '404' || error.message.includes('resource_missing')) {
+				}
+				catch (error) {
+					if (error.httpCode === '404') {
 						// Webhook does not exist
 						delete webhookData.webhookId;
 						delete webhookData.webhookEvents;
@@ -343,18 +342,21 @@ export class ProAbonoTrigger implements INodeType {
 					throw error;
 				}
 
-				// If it did not error then the webhook exists
+				// Webhook got created before so check if it still exists
 				return true;
 			},
-			// Webhook - create
 			async create(this: IHookFunctions): Promise<boolean> {
 				const returnData: INodeExecutionData[] = [];
-				// const webhookUrl = this.getNodeWebhookUrl('default');
-				const credentials = await this.getCredentials('proAbonoApi');
 
+				// TODO - uncomment this line before releasing the node
+				// const webhookUrl = this.getNodeWebhookUrl('default');
 				const tmpWebhookUrl = this.getNodeWebhookUrl('default') ?? '';
 				const webhookUrl = tmpWebhookUrl.replace('http://localhost:5678', 'http://88.188.14.161:25208');
 
+				// Credentials are required to create a wbehook via ProAbono's API
+				const credentials = await this.getCredentials('proAbonoApi');
+
+				// Get & Merge all events in order to save it for later
 				const customerEvents = this.getNodeParameter('customerEvents', []) as IDataObject[];
 				const subscriptionEvents = this.getNodeParameter('subscriptionEvents', []) as IDataObject[];
 				const invoiceEvents = this.getNodeParameter('invoiceEvents', []) as IDataObject[];
@@ -367,6 +369,7 @@ export class ProAbonoTrigger implements INodeType {
 					...(paymentEvents ?? []),
 				];
 
+				// Create the webhook on ProAbono via its API
 				const endpoint = '/Notification/Webhooks';
 
 				const body = {
@@ -378,44 +381,50 @@ export class ProAbonoTrigger implements INodeType {
 				const responseData = await apiSend.call(this, 'POST', endpoint, body);
 				returnData.push({ json: responseData });
 
-				if (
-					responseData.Id === undefined
-				) {
+				if (responseData?.Id != null) {
+					const webhookData = this.getWorkflowStaticData('node');
+					// Save webhookId in order to DELETE properly the webhook later
+					webhookData.webhookId = responseData.Id as string;
+					// When a webhook is not verify, ProAbono will not send any notification to the URL
+					webhookData.isVerified = false;
+					// Saving the triggers isn't necessary, but it can be useful later if you want to check the type of trigger received.
+					webhookData.webhookEvents = responseData.Triggers as string[];
+					webhookData.idBusiness = credentials.businessId;
+					// Saving webhookSecurityKey is important to verify the signatre of a received content
+					webhookData.webhookSecurityKey = credentials.webhookSecurityKey;
+
+					// Request Verification Code
+					apiFetch.call(
+						this,
+						`/Notification/Webhooks/${webhookData.webhookId}/Verification`,
+						{
+							sendCode: true,
+						}
+					);
+				}
+				else {
 					// Required data is missing so was not successful
 					throw new NodeApiError(this.getNode(), responseData as JsonObject, {
 						message: 'ProAbono webhook creation response did not contain the expected data.',
 					});
 				}
 
-				const webhookData = this.getWorkflowStaticData('node');
-				webhookData.webhookId = responseData.Id as string;
-				webhookData.isVerified = false;
-				webhookData.webhookEvents = responseData.Triggers as string[];
-				webhookData.idBusiness = credentials.businessId;
-				webhookData.webhookSecurityKey = credentials.webhookSecurityKey;
-
-			 	// Request Verification Code
-				apiFetch.call(
-					this,
-					`/Notification/Webhooks/${webhookData.webhookId}/Verification`,
-					{
-						sendCode: true,
-					}
-				);
-
 				return true;
 			},
-			// Webhook - delete
 			async delete(this: IHookFunctions): Promise<boolean> {
 				const webhookData = this.getWorkflowStaticData('node');
 
 				if (webhookData.webhookId !== undefined) {
+
 					const endpoint = `/Notification/Webhooks/${webhookData.webhookId}`;
 					const body = {};
 
+					// delete the webhook on ProAbono.
+					// it stops sending any notifications.
 					try {
 						await apiSend.call(this, 'DELETE', endpoint, body);
-					} catch (error) {
+					}
+					catch (error) {
 						return false;
 					}
 
@@ -427,103 +436,97 @@ export class ProAbonoTrigger implements INodeType {
 					delete webhookData.idBusiness;
 					delete webhookData.webhookSecurityKey;
 				}
-
 				return true;
 			},
-		},
+		}
 	};
 
-	// webhook
 	async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
-    const req = this.getRequestObject();
-    const headerData = this.getHeaderData();
+		// const bodyData = this.getBodyData();
+		const req = this.getRequestObject();
+		const headerData = this.getHeaderData();
 		const webhookData = this.getWorkflowStaticData('node');
+		const body = req.body as IDataObject;
 
-    const body = req.body as IDataObject;
-		const code = body.Code as string | undefined;
+		// prepare the response
+		const webhookResponse: IDataObject = {
+			statusCode: 200,
+			message: 'Webhook received successfully',
+		};
 
-    const webhookResponse: IDataObject = {
-      statusCode: 200,
-      message: 'Webhook received successfully',
-    };
+		// First, check if the notification comes from ProAbono
+		// Verify webhook signature
 
-    // Verify webhook signature if provided
     const signature = headerData['x-proabono-signature'] as string;
 		const publicKey = headerData['x-proabono-key'] as string;
 		const webhookSecurityKey = webhookData.webhookSecurityKey as string;
 
-		// Trust only a valid signature
-    if (signature && signature.trim() !== '') {
-      const isValid = verifyWebhookSignature(publicKey, signature, webhookSecurityKey);
+		const isTrustable = verifyWebhookSignature(publicKey, signature, webhookSecurityKey);
 
-			// Retr
-			if (isValid) {
-				// If the Webhook is still not verified
-				if (!webhookData.isVerified) {
-					// Send the Verification Code
-					await apiSend.call(
-						this,
-						'POST',
-						`/Notification/Webhooks/${webhookData.webhookId}/Verification?code=${code}&echo=true`,
-						{});
+		if(isTrustable)
+		{
+			// if the webhook is not verified (active in ProAbono), send the Verification Code
+			if (!webhookData.isVerified) {
+				// Send the Verification Code
+				const code = body.Code as string | undefined;
+				await apiSend.call(
+					this,
+					'POST',
+					`/Notification/Webhooks/${webhookData.webhookId}/Verification?code=${code}&echo=true`,
+					{});
 
-					// Now the webhook is verified.
-					webhookData.isVerified = true;
+				// Now the webhook is verified.
+				webhookData.isVerified = true;
 
-					// Retrieve Dummy Data
-					const dummy = await apiFetch.call(
-						this,
-						'/Notification/WebhookNotifications/RewindEvents',
-						{
-							idBusiness: webhookData.idBusiness,
-							sizepage: 1,
-							links: false,
-							TypeTrigger: webhookData.webhookEvents,
-						}
-					);
+				// Retrieve Dummy Data
+				const dummy = await apiFetch.call(
+					this,
+					'/Notification/WebhookNotifications/RewindEvents',
+					{
+						idBusiness: webhookData.idBusiness,
+						sizepage: 1,
+						links: false,
+						TypeTrigger: webhookData.webhookEvents,
+					}
+				);
 
-					// TODO - Vérifier qu'il y a bien un élément sinon tu retournes un Sample
-					// Check Si Count est présent et vaut 1.
-					// 			Si Count est présent et vaut 1, on retourne	dummy.Items[0]
-					//      sinon check TypeTrigger, retourne un contenu associé
-					// toto
-					return {
-						webhookResponse,
-						workflowData: [
-							[
-								{
-									json: dummy.Items[0],
-								},
-							],
+				// Inform the user whenever no event were available.
+				const workflowData = (dummy?.Count ?? 0) >= 1
+				? [[{ json: dummy.Items[0] }]]
+				: [[{ json: { message: 'No events available.' } }]];
+
+				return {
+					webhookResponse,
+					workflowData,
+				};
+			}
+			// The webhook is already verified, so just need to return the content of the event sent by ProAbono
+			else{
+				return {
+					webhookResponse,
+					workflowData: [
+						[
+							{
+								json: body,
+							},
 						],
-					};
-				}
-				// Because the webhook is already verified and the notification is valid, the content must be returned to the workflow and starts it.
-				else {
-					return {
-						webhookResponse,
-						workflowData: [
-							[
-								{
-									json: body,
-								},
-							],
-						],
-					};
-				}
-      }
-    }
-    return {
-      webhookResponse,
-      workflowData: [
-        [
-          {
-            json: {},
-          },
-        ],
-      ],
-    };
-  }
+					],
+				};
+			}
+		}
+
+		// Just simply say nothing. Maybe it is an attack.
+		return {
+			webhookResponse,
+			workflowData: [
+				[
+					{
+						json: {},
+					},
+				],
+			],
+		};
+	}
 }
 
 
