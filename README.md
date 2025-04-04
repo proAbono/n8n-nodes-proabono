@@ -99,7 +99,7 @@ These credentials will be used to authenticate your requests to the ProAbono API
 
 ## Compatibility
 
-Tested with n8n version 1.20.0 and above.
+Tested with n8n version 1.85.4 and above.
 
 ## Usage
 
