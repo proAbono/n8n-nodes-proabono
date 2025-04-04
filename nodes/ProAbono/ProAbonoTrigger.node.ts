@@ -6,11 +6,10 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 	IWebhookResponseData,
-	JsonObject,
 	INodeExecutionData,
 } from 'n8n-workflow';
 
-import { NodeApiError } from 'n8n-workflow';
+// import { JsonObject, NodeApiError } from 'n8n-workflow';
 
 import { apiSend, apiFetch } from './ProAbonoTools';
 import { verifyWebhookSignature, } from './ProAbonoApi';
@@ -348,10 +347,8 @@ export class ProAbonoTrigger implements INodeType {
 			async create(this: IHookFunctions): Promise<boolean> {
 				const returnData: INodeExecutionData[] = [];
 
-				// TODO - uncomment this line before releasing the node
-				// const webhookUrl = this.getNodeWebhookUrl('default');
-				const tmpWebhookUrl = this.getNodeWebhookUrl('default') ?? '';
-				const webhookUrl = tmpWebhookUrl.replace('http://localhost:5678', 'http://88.188.14.161:25208');
+				// Get the public webhook URL
+				const webhookUrl = this.getNodeWebhookUrl('default');
 
 				// Credentials are required to create a wbehook via ProAbono's API
 				const credentials = await this.getCredentials('proAbonoApi');
@@ -401,15 +398,15 @@ export class ProAbonoTrigger implements INodeType {
 							sendCode: true,
 						}
 					);
+					return true;
 				}
 				else {
 					// Required data is missing so was not successful
-					throw new NodeApiError(this.getNode(), responseData as JsonObject, {
-						message: 'ProAbono webhook creation response did not contain the expected data.',
-					});
+					// throw new NodeApiError(this.getNode(), responseData as JsonObject, {
+					// 	message: 'ProAbono webhook creation response did not contain the expected data.',
+					// });
+					return false;
 				}
-
-				return true;
 			},
 			async delete(this: IHookFunctions): Promise<boolean> {
 				const webhookData = this.getWorkflowStaticData('node');
@@ -493,7 +490,7 @@ export class ProAbonoTrigger implements INodeType {
 				// Inform the user whenever no event were available.
 				const workflowData = (dummy?.Count ?? 0) >= 1
 				? [[{ json: dummy.Items[0] }]]
-				: [[{ json: { message: 'No events available.' } }]];
+				: [[{ json: { message: 'No available events.' } }]];
 
 				return {
 					webhookResponse,
