@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-proabono",
+  "name": "@proabono/n8n-nodes-proabono",
   "version": "1.0.0",
   "description": "ProAbono integration for n8n",
   "keywords": [
