@@ -225,6 +225,7 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'Reference Offer'
 	{
+		// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
 		displayName: 'Offer Name or ReferenceOffer',
 		name: 'ReferenceOffer',
 		type: 'options',
@@ -233,6 +234,7 @@ export const subscriptionFields: INodeProperties[] = [
 		},
 		required: true,
 		default: '',
+		// eslint-disable-next-line n8n-nodes-base/node-param-description-wrong-for-dynamic-options
 		description: 'Choose from the list, or specify a ReferenceOffer using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
 		displayOptions: {
 			show: {
@@ -294,11 +296,11 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'Immediate' (Termination)
 	{
-		displayName: 'When Should This Termination Be Applied ?',
+		displayName: 'When to Apply the Termination?',
 		name: 'Immediate',
 		type: 'options',
 		default: false,
-		description: 'Usually a termination is applied at the end of the current term but sometimes you need to applied right away and not wait',
+		description: 'Choose whether the termination should take effect immediately or at the end of the current term. By default, terminations are applied at the end of the billing period.',
 		displayOptions: {
 			show: {
 				resource: ['subscription',],
@@ -313,7 +315,7 @@ export const subscriptionFields: INodeProperties[] = [
 				value: true,
 			},
 			{
-				name: 'At the End of the Current Term (Default Behaviour)',
+				name: 'At the End of the Current Term (Default)',
 				value: false,
 			},
 		],
@@ -326,11 +328,11 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'Immediate' (Upgrade)
 	{
-		displayName: 'When Should This Upgrade Be Applied ?',
+		displayName: 'When to Apply the Upgrade?',
 		name: 'Immediate',
 		type: 'options',
 		default: false,
-		description: 'Usually an upgrade is applied right away but sometimes you need to wait the end of the current term to applied it',
+		description: 'Choose whether the upgrade should be applied immediately or at the end of the current term. By default, upgrades are applied at the end of the billing period.',
 		displayOptions: {
 			show: {
 				resource: ['subscription',],
@@ -345,7 +347,7 @@ export const subscriptionFields: INodeProperties[] = [
 				value: true,
 			},
 			{
-				name: 'At the End of the Current Term (Default Behaviour)',
+				name: 'At the End of the Current Term',
 				value: false,
 			},
 		],
@@ -358,11 +360,11 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'IgnoreEngagement' (Upgrade)
 	{
-		displayName: 'Should The Minimum Commitment Be Ignored ?',
+		displayName: 'Ignore Minimum Commitment?',
 		name: 'IgnoreEngagement',
 		type: 'options',
 		default: false,
-		description: 'Some subscriptions can NOT be upgraded because of their commitments. Ex : a monthly subscription with 12 months commitment can not upgrade within the first 12 months.',
+		description: 'Whether to allow the upgrade even if the subscription is still within its minimum commitment period. For example, a monthly subscription with a 12-month commitment cannot usually be upgraded during the first 12 months.',
 		displayOptions: {
 			show: {
 				resource: ['subscription',],
@@ -377,7 +379,7 @@ export const subscriptionFields: INodeProperties[] = [
 				value: true,
 			},
 			{
-				name: 'No, Do Not Ignore Commitment',
+				name: 'No, Respect the Commitment Period',
 				value: false,
 			},
 		],
@@ -390,11 +392,11 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'BillNow' (Upgrade)
 	{
-		displayName: 'When Should This Upgrade Be Billed ?',
+		displayName: 'When to Bill the Upgrade?',
 		name: 'BillNow',
 		type: 'options',
 		default: false,
-		description: 'The upgrade can be billed right away OR at the next renewal (ie at the end of the current term.)',
+		description: 'Choose whether the upgrade should be billed immediately or at the next renewal (i.e., at the end of the current billing period)',
 		displayOptions: {
 			show: {
 				resource: ['subscription',],
@@ -405,7 +407,7 @@ export const subscriptionFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Right Away',
+				name: 'Immediately',
 				value: true,
 			},
 			{
@@ -422,6 +424,7 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'Reference Feature' (Limitation and Consumption)
 	{
+		// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
 		displayName: 'Feature Name or ReferenceFeature',
 		name: 'ReferenceFeature',
 		type: 'options',
@@ -430,6 +433,7 @@ export const subscriptionFields: INodeProperties[] = [
 		},
 		required: true,
 		default: '',
+		// eslint-disable-next-line n8n-nodes-base/node-param-description-wrong-for-dynamic-options
 		description: 'Choose from the list, or specify a ReferenceFeature using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
 		displayOptions: {
 			show: {
@@ -448,6 +452,7 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'Reference Feature' (OnOff)
 	{
+		// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
 		displayName: 'Feature Name or ReferenceFeature',
 		name: 'ReferenceFeature',
 		type: 'options',
@@ -456,6 +461,7 @@ export const subscriptionFields: INodeProperties[] = [
 		},
 		required: true,
 		default: '',
+		// eslint-disable-next-line n8n-nodes-base/node-param-description-wrong-for-dynamic-options
 		description: 'Choose from the list, or specify a ReferenceFeature using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
 		displayOptions: {
 			show: {
@@ -497,11 +503,11 @@ export const subscriptionFields: INodeProperties[] = [
 	},
 	// Field 'IsEnabled'
 	{
-		displayName: 'Enabled ?',
+		displayName: 'Enabled It?',
 		name: 'IsEnabled',
 		type: 'boolean',
 		default: true,
-		description: 'If True, the Feature will be enabled to the Customer',
+		description: 'Whether the feature will be enabled for the customer',
 		displayOptions: {
 			show: {
 				resource: ['subscription',],

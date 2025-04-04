@@ -293,7 +293,7 @@ export const customerFields: INodeProperties[] = [
 	},
 	// Field 'Segment'
 	{
-		displayName: 'Segment',
+		displayName: 'Segment Name or ID',
 		name: 'IdSegment',
 		type: 'options',
 		typeOptions: {
@@ -301,7 +301,7 @@ export const customerFields: INodeProperties[] = [
 		},
 		required: true,
 		default: '',
-		description: 'ID of the segment to assign the customer to',
+		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code-examples/expressions/">expression</a>',
 		displayOptions: {
 			show: {
 				resource: ['customer',],

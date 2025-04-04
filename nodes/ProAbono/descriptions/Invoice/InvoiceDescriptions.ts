@@ -245,10 +245,11 @@ export const invoiceFields: INodeProperties[] = [
 	},
 	// Field 'EnsureBillable' (Create a Balance Line)
 	{
-		displayName: 'Should the Line Be Created only if the Customer Has Valid Payment Information ?',
+		displayName: 'Require Valid Payment Information?',
 		name: 'EnsureBillable',
 		type: 'options',
 		default: false,
+		description: 'Whether the balance line should be created only if the customer has valid payment information. If not, the operation will be blocked.',
 		displayOptions: {
 			show: {
 				resource: ['invoice',],
@@ -263,7 +264,7 @@ export const invoiceFields: INodeProperties[] = [
 				value: true,
 			},
 			{
-				name: 'No, the Line Should Be Created in Any Case',
+				name: 'No, Create the Line Regardless',
 				value: false,
 			},
 		],
@@ -299,11 +300,11 @@ export const invoiceFields: INodeProperties[] = [
 	},
 	// Field 'EnsureBillable' (billCustomer)
 	{
-		displayName: 'Ensure Billable ?',
+		displayName: 'Ensure Billable?',
 		name: 'EnsureBillable',
 		type: 'boolean',
 		default: false,
-		description : 'If True forces the verification of the payment information, even if the Offer is free. If the customer has not registered any payment information, the 403 forbidden error is returned.',
+		description : 'Whether to force a verification of the payment information, even if the offer is free. If the customer has not registered any payment method, a 403 Forbidden error is returned.',
 		displayOptions: {
 			show: {
 				resource: ['invoice',],
@@ -321,11 +322,11 @@ export const invoiceFields: INodeProperties[] = [
 	},
 	// Field 'ForceOffline' (billCustomer)
 	{
-		displayName: 'Force Offline ?',
+		displayName: 'Force Offline?',
 		name: 'ForceOffline',
 		type: 'boolean',
 		default: false,
-		description : 'If true, it forces the invoice to be offline for a customer with automated payment (card, direct debit).',
+		description: 'Whether to force the invoice to be offline for a customer with automated payment (e.g., card, direct debit)',
 		displayOptions: {
 			show: {
 				resource: ['invoice',],
@@ -343,11 +344,11 @@ export const invoiceFields: INodeProperties[] = [
 	},
 	// Field 'DateStart' (billCustomer)
 	{
-		displayName: 'Date Start',
+		displayName: 'Start Date (Include Lines After)',
 		name: 'DateStart',
 		type: 'dateTime',
 		default: false,
-		description : 'Ignore Lines what\'s before that date',
+		description: 'Only include balance lines dated on or after this date. Lines before this date will be ignored.',
 		displayOptions: {
 			show: {
 				resource: ['invoice',],
@@ -365,11 +366,11 @@ export const invoiceFields: INodeProperties[] = [
 	},
 	// Field 'DateEnd' (billCustomer)
 	{
-		displayName: 'Date End',
+		displayName: 'End Date (Include Lines Before)',
 		name: 'DateEnd',
 		type: 'dateTime',
 		default: false,
-		description : 'Ignore Lines what\'s after that date',
+		description: 'Only include balance lines dated on or before this date. Lines after this date will be ignored.',
 		displayOptions: {
 			show: {
 				resource: ['invoice',],
