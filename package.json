@@ -44,7 +44,8 @@
       "dist/credentials/ProAbonoApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ProAbono/ProAbono.node.js"
+      "dist/nodes/ProAbono/ProAbono.node.js",
+      "dist/nodes/ProAbono/ProAbonoTrigger.node.js"
     ]
   },
   "devDependencies": {
