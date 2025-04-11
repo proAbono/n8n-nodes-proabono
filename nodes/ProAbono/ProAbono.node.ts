@@ -32,7 +32,7 @@ export class ProAbono implements INodeType {
 		icon: 'file:proabono.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		subtitle: '={{$parameter["operation"]}}',
 		description: 'Interact with ProAbono API',
 		defaults: {
 			name: 'ProAbono',

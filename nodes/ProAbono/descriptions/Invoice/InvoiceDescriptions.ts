@@ -53,10 +53,10 @@ export const invoiceOperations: INodeProperties[] = [
 			},
 			// Create a Line in the Balance of the Customer
 			{
-				name: 'Create a Line in the Balance of the Customer',
+				name: 'Create a Line in the Customer Balance',
 				value: 'createBalanceLine',
-				description: 'Creates a new line in the Balance of the Customer',
-				action: 'Create a line in the balance of the customer',
+				description: 'Creates a new line in the Customer Balance',
+				action: 'Create a line in the balance of a customer',
 				routing: {
 					request: {
 						method: 'POST',
@@ -245,11 +245,11 @@ export const invoiceFields: INodeProperties[] = [
 	},
 	// Field 'EnsureBillable' (Create a Balance Line)
 	{
-		displayName: 'Require Valid Payment Information?',
+		displayName: 'Only if Customer Has Valid Payment Information?',
 		name: 'EnsureBillable',
 		type: 'options',
 		default: false,
-		description: 'Whether the balance line should be created only if the customer has valid payment information. If not, the operation will be blocked.',
+		// description: 'Whether the balance line should be created only if the customer has valid payment information. If not, the operation will be blocked.',
 		displayOptions: {
 			show: {
 				resource: ['invoice',],
@@ -260,11 +260,11 @@ export const invoiceFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Yes, only if the Customer Has Valid Payment Information',
+				name: 'Yes, Create the Line only if the Customer Has Valid Payment Information',
 				value: true,
 			},
 			{
-				name: 'No, Create the Line Regardless',
+				name: 'No, Create the Line in Any Case',
 				value: false,
 			},
 		],
@@ -300,11 +300,11 @@ export const invoiceFields: INodeProperties[] = [
 	},
 	// Field 'EnsureBillable' (billCustomer)
 	{
-		displayName: 'Ensure Billable?',
+		displayName: 'Only if Customer Has Valid Payment Information?',
 		name: 'EnsureBillable',
-		type: 'boolean',
+		type: 'options',
 		default: false,
-		description : 'Whether to force a verification of the payment information, even if the offer is free. If the customer has not registered any payment method, a 403 Forbidden error is returned.',
+		// description : 'Whether to force a check for valid payment information before billing. If not enabled, the customer will be billed regardless.',
 		displayOptions: {
 			show: {
 				resource: ['invoice',],
@@ -313,6 +313,16 @@ export const invoiceFields: INodeProperties[] = [
 				],
 			},
 		},
+		options: [
+			{
+				name: 'Yes, Bill only if the Customer Has Valid Payment Information',
+				value: true,
+			},
+			{
+				name: 'No, Bill the Customer in Any Case',
+				value: false,
+			},
+		],
 		routing: {
 			send: {
 				type: 'body',

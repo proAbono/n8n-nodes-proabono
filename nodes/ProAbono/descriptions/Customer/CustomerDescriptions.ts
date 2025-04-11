@@ -565,7 +565,7 @@ export const customerFields: INodeProperties[] = [
 	},
 	// Field 'Type Payment'
 	{
-		displayName: 'Type Payment1',
+		displayName: 'Type Payment',
 		name: 'TypePayment',
 		type: 'options',
 		default: 'ExternalBank',
@@ -594,7 +594,7 @@ export const customerFields: INodeProperties[] = [
 			{
 				name: 'Other',
 				value:'ExternalOther',
-			},
+			}
 		],
 		routing: {
 			send: {
@@ -627,11 +627,11 @@ export const customerFields: INodeProperties[] = [
 	},
 	// Field 'Is Auto Billing'
 	{
-		displayName: 'Is Auto Billing',
+		displayName: 'Enable Recurring Billing?',
 		name: 'IsAutoBilling',
-		type: 'boolean',
-		default: false,
+		type: 'options',
 		description: 'Whether auto billing is enabled',
+		default: 'true',
 		displayOptions: {
 			show: {
 				resource: ['customer',],
@@ -640,6 +640,16 @@ export const customerFields: INodeProperties[] = [
 				],
 			},
 		},
+		options: [
+			{
+				name: 'Yes, the Customer Should Be Billed Automatically',
+				value:'true',
+			},
+			{
+				name: 'No, I Will Bill Manually the Customer Every Time',
+				value:'false',
+			},
+		],
 		routing: {
 			send: {
 				type: 'body',
@@ -648,26 +658,26 @@ export const customerFields: INodeProperties[] = [
 		},
 	},
 	// Field 'Is Grey Listed'
-	{
-		displayName: 'Is Grey Listed',
-		name: 'IsGreyListed',
-		type: 'boolean',
-		default: false,
-		description: 'Whether the customer is grey listed',
-		displayOptions: {
-			show: {
-				resource: ['customer',],
-				operation: [
-					'updatePaymentSettings',
-				],
-			},
-		},
-		routing: {
-			send: {
-				type: 'body',
-				property: 'IsGreyListed',
-			},
-		},
-	},
+	// {
+	// 	displayName: 'Is Grey Listed',
+	// 	name: 'IsGreyListed',
+	// 	type: 'boolean',
+	// 	default: false,
+	// 	description: 'Whether the customer is grey listed',
+	// 	displayOptions: {
+	// 		show: {
+	// 			resource: ['customer',],
+	// 			operation: [
+	// 				'updatePaymentSettings',
+	// 			],
+	// 		},
+	// 	},
+	// 	routing: {
+	// 		send: {
+	// 			type: 'body',
+	// 			property: 'IsGreyListed',
+	// 		},
+	// 	},
+	// },
 ];
 

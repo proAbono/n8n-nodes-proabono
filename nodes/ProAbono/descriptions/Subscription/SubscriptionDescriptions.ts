@@ -252,7 +252,7 @@ export const subscriptionFields: INodeProperties[] = [
 			},
 		},
 	},
-	// Field 'ID Subscirpiotn '
+	// Field 'ID Subscription '
 	{
 		displayName: 'Subscription ID',
 		name: 'IdSubscription',

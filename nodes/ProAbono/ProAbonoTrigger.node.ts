@@ -262,14 +262,30 @@ export class ProAbonoTrigger implements INodeType {
 						name: 'Invoice - Uncollectible',
 						value: 'InvoiceDebitUncollectible',
 						description: 'Occurs whenever an invoice is marked as uncollectible.'
-					},
+					}
+				]
+				,
+			},
+			// 'Credit Notes Events'
+			{
+				displayName: 'Credit Notes Events',
+				name: 'creditnoteEvents',
+				type: 'multiOptions',
+				default: [],
+				description: 'The event to listen to',
+				// eslint-disable-next-line n8n-nodes-base/node-param-multi-options-type-unsorted-items
+				options: [
 					{
 						name: 'Credit Note - Issued',
 						value: 'InvoiceCreditIssued',
 						description: 'Occurs whenever a credit note is issued. It occurs when an invoice is cancelled or refunded.'
-					}
-				]
-				,
+					},
+					{
+						name: 'Credit Note - Paid',
+						value: 'InvoiceCreditPaid',
+						description: 'Occurs whenever a credit note is paid. It occurs when an invoice is refunded.'
+					},
+				],
 			},
 			// 'Payment Method Events'
 			{
@@ -357,12 +373,14 @@ export class ProAbonoTrigger implements INodeType {
 				const customerEvents = this.getNodeParameter('customerEvents', []) as IDataObject[];
 				const subscriptionEvents = this.getNodeParameter('subscriptionEvents', []) as IDataObject[];
 				const invoiceEvents = this.getNodeParameter('invoiceEvents', []) as IDataObject[];
+				const creditnoteEvents = this.getNodeParameter('creditnoteEvents', []) as IDataObject[];
 				const paymentEvents = this.getNodeParameter('paymentEvents', []) as IDataObject[];
 
 				const events = [
 					...(customerEvents ?? []),
 					...(subscriptionEvents ?? []),
 					...(invoiceEvents ?? []),
+					...(creditnoteEvents ?? []),
 					...(paymentEvents ?? []),
 				];
 
