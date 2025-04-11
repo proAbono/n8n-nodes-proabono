@@ -78,8 +78,10 @@ This node supports the following operations:
 - Invoice Issued (Automatic / Offline)
 - Invoice Paid / Refunded / Cancelled
 - Invoice Payment Failed / Overdue / Disputed / Uncollectible
-- Credit Note Issued
 - Payment Authentication Requested
+
+#### Credit Note Events
+- Credit Note Issued
 
 #### Payment Method Events
 - Payment Method Expires Soon / Expired
