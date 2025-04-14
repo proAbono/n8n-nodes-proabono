@@ -1,6 +1,7 @@
 import {
 	IDataObject,
   ILoadOptionsFunctions,
+	IWebhookFunctions,
 } from 'n8n-workflow';
 
 import { apiFetch } from './ProAbonoTools';
@@ -179,4 +180,52 @@ export function verifyWebhookSignature(
     // Optionally log the error
     return false;
   }
+}
+
+// getSampleEventByTrigger
+// 1. Try to get real events from RewindEvents
+// 2. Fall back to static sample from /Webhooks/Sample
+export async function getSampleEventByTrigger(
+	this: IWebhookFunctions,
+	typeTrigger: string,
+	idBusiness: number,
+): Promise<IDataObject> {
+	try {
+		// 1. Try to get real events from RewindEvents
+		const rewindResponse = await apiFetch.call(
+			this,
+			'/Notification/WebhookNotifications/RewindEvents',
+			{
+				idBusiness,
+				sizepage: 1,
+				links: false,
+				TypeTrigger: typeTrigger,
+			}
+		);
+
+		if ((rewindResponse?.Count ?? 0) >= 1) {
+			return rewindResponse.Items[0];
+		}
+
+		// 2. Fall back to static sample from /Webhooks/Sample
+		const sampleResponse = await apiFetch.call(
+			this,
+			'/Notification/Webhooks/Sample',
+			{
+				TypeTrigger: typeTrigger,
+			}
+		);
+
+		const parsedData = typeof sampleResponse?.Data === 'string'
+			? JSON.parse(sampleResponse.Data)
+			: sampleResponse?.Data;
+
+		return parsedData ?? { message: `No sample available for trigger: ${typeTrigger}` };
+
+	} catch (error) {
+		return {
+			message: `Error retrieving event for trigger: ${typeTrigger}`,
+			error: error instanceof Error ? error.message : error,
+		};
+	}
 }

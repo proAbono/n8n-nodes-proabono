@@ -116,6 +116,9 @@ Need help getting started with n8n? Check out the [Try it out](https://docs.n8n.
 
 ## Version history
 
+### 1.0.5
+- Added fallback mechanism using /Notification/Webhooks/Sample when no real events are available for a given trigger
+
 ### 1.0.4
 - Improve descriptions and labels of many parameters
 - Add options at parameters 'IsAutoBilling' and 'EnsureBillable'

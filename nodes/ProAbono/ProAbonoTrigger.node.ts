@@ -12,7 +12,7 @@ import type {
 // import { JsonObject, NodeApiError } from 'n8n-workflow';
 
 import { apiSend, apiFetch } from './ProAbonoTools';
-import { verifyWebhookSignature, } from './ProAbonoApi';
+import { verifyWebhookSignature, getSampleEventByTrigger} from './ProAbonoApi';
 
 export class ProAbonoTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -279,12 +279,7 @@ export class ProAbonoTrigger implements INodeType {
 						name: 'Credit Note - Issued',
 						value: 'InvoiceCreditIssued',
 						description: 'Occurs whenever a credit note is issued. It occurs when an invoice is cancelled or refunded.'
-					},
-					{
-						name: 'Credit Note - Paid',
-						value: 'InvoiceCreditPaid',
-						description: 'Occurs whenever a credit note is paid. It occurs when an invoice is refunded.'
-					},
+					}
 				],
 			},
 			// 'Payment Method Events'
@@ -493,22 +488,11 @@ export class ProAbonoTrigger implements INodeType {
 				// Now the webhook is verified.
 				webhookData.isVerified = true;
 
-				// Retrieve Dummy Data
-				const dummy = await apiFetch.call(
-					this,
-					'/Notification/WebhookNotifications/RewindEvents',
-					{
-						idBusiness: webhookData.idBusiness,
-						sizepage: 1,
-						links: false,
-						TypeTrigger: webhookData.webhookEvents,
-					}
-				);
-
-				// Inform the user whenever no event were available.
-				const workflowData = (dummy?.Count ?? 0) >= 1
-				? [[{ json: dummy.Items[0] }]]
-				: [[{ json: { message: 'No available events.' } }]];
+				// Retrieve Dummy Data (real events or fallback on static sample)
+				const rawTriggers = webhookData.webhookEvents?.toString().split(',') ?? []; // web
+				const triggerType = rawTriggers[0]?.trim() ?? '';
+				const sample = await getSampleEventByTrigger.call(this, triggerType, webhookData.idBusiness as number);
+				const workflowData = [[{ json: sample }]];
 
 				return {
 					webhookResponse,
